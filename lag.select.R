@@ -1,5 +1,5 @@
 lag.select <- function(x, kmax = floor(20*(length(x)/100)^(1/4)), type = "none", tpvl = 0.05){
-  
+
   out <- vector("numeric",kmax+1)
   kMAIC <- kBIC <- kAIC <- kHQC <- kSBC <- kT <- out
   
@@ -8,7 +8,7 @@ lag.select <- function(x, kmax = floor(20*(length(x)/100)^(1/4)), type = "none",
   n <- length(y)
 
   kmaxCS     <- min(8, floor((length(x)-3)/2))
-  csMod_Adf  <- min(csMod, kmax)
+  csMod_Adf  <- kmaxCS
   csMod_KPSS <- min(trunc(10*sqrt(n)/14), kmax)
   
   if(type == "none")  f <- "yt ~ xt1 + -1"
@@ -16,7 +16,7 @@ lag.select <- function(x, kmax = floor(20*(length(x)/100)^(1/4)), type = "none",
   if(type == "trend") f <- "yt ~ xt1 + 1 + tt"
   
   strtT <- kmax + 2
-  endT <- n
+  endT <- length(x)
   
   k <- kmax + 1
   z <- embed(y, k)
@@ -38,7 +38,7 @@ lag.select <- function(x, kmax = floor(20*(length(x)/100)^(1/4)), type = "none",
     
     res.sum <- summary(res)
     p  <- res.sum$df[1]
-    TT <- p + res.sum$df[2] #n - kmax#
+    TT <- n - kmax #p + res.sum$df[2] #n - kmax#
     e  <- residuals(res)
     b0 <- res$coefficients["xt1"]
     #stt = kmax - k + 1
@@ -51,10 +51,10 @@ lag.select <- function(x, kmax = floor(20*(length(x)/100)^(1/4)), type = "none",
     tau <- b0^2 * sum(xf^2)/sigma2_k
     kAIC[k+1]  = log(sigma2_k) + 2*p/TT
     kBIC[k+1]  = log(sigma2_k) + p*log(TT)/TT
-    kSBC[k+1]  = log(sigma2_k)  + log(TT)*2*p/TT
+    kSBC[k+1]  = log(sigma2_k) + log(TT)*2*p/TT
     kHQC[k+1]  = log(sigma2_k) + 2*p*log(log(TT))/TT
-    kMAIC[k+1] = log(sigma2_k) + log(TT)*(tau+p)*p/TT
-    
+    kMAIC[k+1] = log(sigma2_k) + 2*(tau+p)/TT
+
     if(k==0) kT[k+1] = 0 else kT[k+1] = res.sum$coefficients[p,4]
   } 
   

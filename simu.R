@@ -36,30 +36,30 @@ baseSim <- function(model, n, I = 100, size = 0.05, drift = 0, trend = NULL,
     lags_drift <- lag.select(simData, type = "drift", kmax = 0.3*n)
     lags_trend <- lag.select(simData, type = "trend", kmax = 0.3*n)
     
-      
+      browser()
     #perform test with no trend/const
     
-    out_none[,,i] <-  sapply(lags, function(k){test <- urca::ur.df(simData, type = "none", selectlags = "Fixed", lags = as.numeric(k))
+    out_none[,,i] <-  sapply(lags_none, function(k){test <- urca::ur.df(simData, type = "none", selectlags = "Fixed", lags = as.numeric(k))
                                               test@teststat < test@cval[size]})
     #out_CADF[1,1,i] <- CADFtest::CADFtest(model = simData, type = "none", criterias = "MAIC")$p.value < 0.05
     
     #perform test with drift
-    out_drift[1,,i] <- sapply(lags, function(k){test <- urca::ur.df(simData, type = "drift", selectlags = "Fixed", lags = as.numeric(k))
+    out_drift[1,,i] <- sapply(lags_drift, function(k){test <- urca::ur.df(simData, type = "drift", selectlags = "Fixed", lags = as.numeric(k))
                                                 test@teststat[,"tau2"] < test@cval["tau2",size]})
-    out_drift[2,,i] <- sapply(lags, function(k){test <- urca::ur.pp(simData, model = "constant", type = "Z-tau", use.lag = as.numeric(k))
+    out_drift[2,,i] <- sapply(lags_drift, function(k){test <- urca::ur.pp(simData, model = "constant", type = "Z-tau", use.lag = as.numeric(k))
                                                 test@teststat < test@cval[size]})
-    out_drift[3,,i] <- sapply(lags, function(k){test <- urca::ur.ers(simData, model = "constant",type = "DF-GLS", lag.max = as.numeric(k))
+    out_drift[3,,i] <- sapply(lags_drift, function(k){test <- urca::ur.ers(simData, model = "constant",type = "DF-GLS", lag.max = as.numeric(k))
                                                 test@teststat < test@cval[size]})
-    out_drift[4,,i] <- sapply(lags, function(k){test <- urca::ur.kpss(simData, type = "mu", use.lag =  as.numeric(k))
+    out_drift[4,,i] <- sapply(lags_drift, function(k){test <- urca::ur.kpss(simData, type = "mu", use.lag =  as.numeric(k))
                                                 test@teststat > test@cval[size]})
     #out_CADF[2,1,i] <- CADFtest::CADFtest(model = simData, type = "drift", criterias = "MAIC")$p.value < 0.05
     
     #perform test with trend
-    out_trend[1,,i] <- sapply(lags, function(k){test <- urca::ur.df(simData, type = "trend", selectlags = "Fixed", lags = as.numeric(k))
+    out_trend[1,,i] <- sapply(lags_trend, function(k){test <- urca::ur.df(simData, type = "trend", selectlags = "Fixed", lags = as.numeric(k))
                                                 test@teststat[,"tau3"] < test@cval["tau3",size]})
-    out_trend[2,,i] <- sapply(lags, function(k){test <- urca::ur.pp(simData, model = "trend", type = "Z-tau", use.lag = as.numeric(k))
+    out_trend[2,,i] <- sapply(lags_trend, function(k){test <- urca::ur.pp(simData, model = "trend", type = "Z-tau", use.lag = as.numeric(k))
                                                test@teststat < test@cval[size]})
-    out_trend[3,,i] <- sapply(lags, function(k){test <- urca::ur.ers(simData, model = "trend",type = "DF-GLS", lag.max = as.numeric(k))
+    out_trend[3,,i] <- sapply(lags_trend, function(k){test <- urca::ur.ers(simData, model = "trend",type = "DF-GLS", lag.max = as.numeric(k))
                                                test@teststat < test@cval[size]})
     out_trend[4,,i] <- sapply(lags, function(k){test <- urca::ur.kpss(simData, type = "tau", use.lag = as.numeric(k))
                                                test@teststat > test@cval[size]})
